@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>4択クイズアプリ</title>
+  <style>
+    .correct { color: green; }
+    .incorrect { color: red; }
+  </style>
+  <script src="quiz.js" defer></script>
+</head>
+<body>
+  <h1>正解数: <span id="correctCount">0</span> / 出題数: <span id="questionCount">0</span></h1>
+  <h2 id="questionText">ここに質問が表示されます</h2>
+  <div id="optionsContainer"></div>
+  <button id="submitButton">回答</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let currentQuestionIndex = 0;
+      let correctCount = 0;
+      const questionCount = quizData.length;
+
+      document.getElementById('questionCount').innerText = questionCount;
+
+      function displayQuestion(index) {
+        const question = quizData[index];
+        document.getElementById('questionText').innerText = question.question;
+
+        const optionsContainer = document.getElementById('optionsContainer');
+        optionsContainer.innerHTML = '';
+        question.options.forEach((option, i) => {
+          const input = document.createElement('input');
+          const label = document.createElement('label');
+          const br = document.createElement('br');
+
+          if (question.multiselect) {
+            input.type = 'checkbox';
+            input.name = 'option';
+            input.value = i;
+          } else {
+            input.type = 'radio';
+            input.name = 'option';
+            input.value = i;
+          }
+
+          label.appendChild(input);
+          label.appendChild(document.createTextNode(option.text));
+          optionsContainer.appendChild(label);
+          optionsContainer.appendChild(br);
+        });
+      }
+
+      function checkAnswer() {
+        const selectedOptions = document.querySelectorAll('input[name="option"]:checked');
+        const selectedValues = Array.from(selectedOptions).map(input => parseInt(input.value));
+        const question = quizData[currentQuestionIndex];
+        let correct = true;
+
+        question.options.forEach((option, i) => {
+          const optionElement = document.querySelector(`label:nth-child(${i * 2 + 1})`);
+          if (option.answer && !selectedValues.includes(i)) {
+            optionElement.classList.add('correct');
+            correct = false;
+          } else if (!option.answer && selectedValues.includes(i)) {
+            optionElement.classList.add('incorrect');
+            correct = false;
+          } else {
+            optionElement.classList.remove('correct', 'incorrect');
+          }
+        });
+
+        if (correct && selectedValues.length === question.options.filter(o => o.answer).length) {
+          correctCount++;
+          document.getElementById('correctCount').innerText = correctCount;
+          document.getElementById('submitButton').innerText = '正解：次へ';
+        } else {
+          document.getElementById('submitButton').innerText = '不正解：次へ';
+        }
+      }
+
+      function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questionCount) {
+          displayQuestion(currentQuestionIndex);
+          document.getElementById('submitButton').innerText = '回答';
+        } else {
+          const score = Math.floor((correctCount / questionCount) * 100);
+          alert(`お疲れ様です。正答率は${score}％でした。`);
+          currentQuestionIndex = 0;
+          correctCount = 0;
+          document.getElementById('correctCount').innerText = correctCount;
+          document.getElementById('questionCount').innerText = questionCount;
+          displayQuestion(currentQuestionIndex);
+        }
+      }
+
+      document.getElementById('submitButton').addEventListener('click', () => {
+        if (document.getElementById('submitButton').innerText.startsWith('正解')) {
+          nextQuestion();
+        } else if (document.getElementById('submitButton').innerText.startsWith('不正解')) {
+          nextQuestion();
+        } else {
+          checkAnswer();
+        }
+      });
+
+      displayQuestion(currentQuestionIndex);
+    });
+  </script>
+</body>
+</html>
