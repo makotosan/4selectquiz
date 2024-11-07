@@ -33,7 +33,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>4-Choice Quiz Web Application</h1>
+      <h1>キャリコン4択クイズ</h1>
       {!selectedQuiz ? (
         <QuizSelector quizzes={quizzes} onSelect={handleQuizSelect} />
       ) : (
