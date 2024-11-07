@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import QuizSummary from './QuizSummary';
 
 function Quiz({ quizData, onBack }) {
   const [questions, setQuestions] = useState([]);
@@ -6,6 +7,8 @@ function Quiz({ quizData, onBack }) {
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [results, setResults] = useState([]);
 
   useEffect(() => {
     const shuffledQuestions = [...quizData.quizzes].sort(() => Math.random() - 0.5);
@@ -45,6 +48,14 @@ function Quiz({ quizData, onBack }) {
 
     setIsCorrect(isAnswerCorrect);
     setShowFeedback(true);
+
+    setResults([...results, {
+      question: currentQuestion.question,
+      isCorrect: isAnswerCorrect,
+      selectedOptions: selectedOptions.map(index => currentQuestion.options[index].text),
+      correctOptions: correctAnswers.map(index => currentQuestion.options[index].text),
+      explanation: currentQuestion.explanation
+    }]);
   };
 
   const handleNext = () => {
@@ -52,11 +63,17 @@ function Quiz({ quizData, onBack }) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedOptions([]);
       setShowFeedback(false);
+    } else {
+      setQuizCompleted(true);
     }
   };
 
   if (questions.length === 0) {
     return <div>Loading...</div>;
+  }
+
+  if (quizCompleted) {
+    return <QuizSummary results={results} onBack={onBack} />;
   }
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -87,11 +104,9 @@ function Quiz({ quizData, onBack }) {
             {isCorrect ? '正解です！' : '不正解です。'}
           </p>
           <p className="explanation">{currentQuestion.explanation}</p>
-          {currentQuestionIndex < questions.length - 1 ? (
-            <button onClick={handleNext}>次の問題へ</button>
-          ) : (
-            <button onClick={onBack}>クイズ選択に戻る</button>
-          )}
+          <button onClick={handleNext}>
+            {currentQuestionIndex < questions.length - 1 ? '次の問題へ' : '結果を見る'}
+          </button>
         </div>
       )}
     </div>
