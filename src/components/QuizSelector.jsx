@@ -14,7 +14,7 @@ function QuizSelector({ quizzes, onSelect }) {
   };
 
   return (
-    <div>
+    <div className="quiz-selector">
       <select value={selectedQuizId} onChange={handleSelect}>
         <option value="">クイズを選択してください</option>
         {quizzes.map(quiz => (

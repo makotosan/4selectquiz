@@ -49,7 +49,7 @@ function Quiz({ quizData, onBack }) {
     setIsCorrect(isAnswerCorrect);
     setShowFeedback(true);
 
-    setResults([...results, {
+    setResults(prevResults => [...prevResults, {
       question: currentQuestion.question,
       isCorrect: isAnswerCorrect,
       selectedOptions: selectedOptions.map(index => currentQuestion.options[index].text),
@@ -73,7 +73,7 @@ function Quiz({ quizData, onBack }) {
   }
 
   if (quizCompleted) {
-    return <QuizSummary results={results} onBack={onBack} />;
+    return <QuizSummary results={results} onBack={onBack} quizTitle={quizData.title} />;
   }
 
   const currentQuestion = questions[currentQuestionIndex];
